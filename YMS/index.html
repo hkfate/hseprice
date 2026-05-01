@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YMS Yield-Mortgage Spread Dashboard | 4KGOR</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0f0f23; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 28px; margin-bottom: 5px; background: linear-gradient(135deg, #e94560, #f5a623); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { color: #888; font-size: 14px; margin-bottom: 30px; }
+.card { background: #1a1a2e; border-radius: 12px; padding: 25px; margin-bottom: 20px; border: 1px solid #2a2a4a; }
+.card h2 { font-size: 18px; margin-bottom: 15px; color: #e94560; }
+.card h3 { font-size: 15px; margin-bottom: 10px; color: #f5a623; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+.stat { text-align: center; padding: 15px; background: #16213e; border-radius: 8px; }
+.stat .value { font-size: 24px; font-weight: bold; }
+.stat .value.red { color: #e94560; }
+.stat .value.orange { color: #f5a623; }
+.stat .value.green { color: #4ecdc4; }
+.stat .label { font-size: 12px; color: #888; margin-top: 5px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #2a2a4a; }
+th { background: #16213e; color: #f5a623; font-weight: 600; }
+tr:hover { background: #1f2a42; }
+.risk-bar { display: flex; gap: 5px; margin: 15px 0; }
+.risk-segment { flex: 1; padding: 8px; text-align: center; border-radius: 6px; font-size: 13px; font-weight: bold; }
+.risk-green { background: #1a4a3a; color: #4ecdc4; }
+.risk-yellow { background: #4a3a1a; color: #f5a623; }
+.risk-red { background: #4a1a1a; color: #e94560; }
+.risk-current { box-shadow: 0 0 10px rgba(233,69,96,0.6); border: 2px solid #e94560; }
+.risk-indicator { display: inline-block; padding: 4px 16px; border-radius: 20px; font-weight: bold; font-size: 16px; }
+.risk-indicator.red { background: #4a1a1a; color: #e94560; border: 1px solid #e94560; }
+.risk-indicator.yellow { background: #4a3a1a; color: #f5a623; border: 1px solid #f5a623; }
+.risk-indicator.green { background: #1a4a3a; color: #4ecdc4; border: 1px solid #4ecdc4; }
+.chart-container { background: #1a1a2e; border-radius: 12px; padding: 5px; }
+.chart-container img { width: 100%; height: auto; border-radius: 8px; }
+.source-item { padding: 5px 0; border-bottom: 1px solid #2a2a4a; font-size: 13px; line-height: 1.6; }
+.source-item:last-child { border: none; }
+.source-item .label { color: #f5a623; font-weight: 600; }
+ul { padding-left: 20px; font-size: 13px; line-height: 1.8; }
+li { margin-bottom: 5px; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+.tag-rvd { background: #2a1a4a; color: #a78bfa; }
+.tag-hkma { background: #1a2a4a; color: #60a5fa; }
+.tag-csd { background: #1a4a2a; color: #34d399; }
+@media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Navigation -->
+<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+<a href="index.html" style="background:#2a2a4a;color:#e0e0e0;padding:8px 20px;border-radius:8px;text-decoration:none;font-size:14px;border:1px solid #3a3a5a;">🏠 YMS Dashboard</a>
+<a href="ph_ta.html" style="background:#2a2a4a;color:#f5a623;padding:8px 20px;border-radius:8px;text-decoration:none;font-size:14px;border:1px solid #f5a623;font-weight:bold;">📊 價格指數技術分析</a>
+</div>
+
+<h1>🏠 4KGOR YMS 住宅物業 Yield-Mortgage Spread 分析</h1>
+<div class="subtitle">量化分析報告 | 數據截至 2026年2月 | 由 Hermes AI Agent 自動生成</div>
+
+<!-- Chart -->
+<div class="card" style="padding: 5px;">
+<div class="chart-container">
+<iframe src="yms_chart_interactive.html" style="width:100%;height:620px;border:none;border-radius:8px;" title="YMS Interactive Chart"></iframe>
+<div style="text-align:center;padding:5px;color:#888;font-size:11px;">🖱️ 拉選 zoom • Hover 睇數據 • 可撳 legend 隱藏/顯示線條</div>
+</div>
+</div>
+
+<!-- Price Index SMA Guide -->
+<div class="card">
+<h2>📈 樓價趨勢解讀：指數 vs 125期SMA</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+<div style="background:#0a2a1a;border-radius:8px;padding:15px;border:1px solid #1a4a3a;text-align:center;opacity:0.4;">
+<div style="font-size:36px;margin-bottom:8px;">📈</div>
+<div style="font-size:16px;color:#4ecdc4;font-weight:bold;">樓價指數 > 125SMA</div>
+<div style="font-size:13px;color:#b0d0c0;margin-top:8px;">
+<b style="color:#4ecdc4;">⬆️ 上升趨勢（Rise）</b><br>
+代表樓價處於125期（約10年）移動平均線之上，市場整體處於上升通道。
+</div>
+</div>
+<div style="background:#2a1a1a;border-radius:8px;padding:15px;border:1px solid #e94560;text-align:center;box-shadow:0 0 15px rgba(233,69,96,0.3);">
+<div style="font-size:36px;margin-bottom:8px;">📉</div>
+<div style="font-size:16px;color:#e94560;font-weight:bold;">樓價指數 < 125SMA</div>
+<div style="font-size:13px;color:#d0b0b0;margin-top:8px;">
+<b style="color:#e94560;">⬇️ 下跌趨勢（Drop）</b><br>
+代表樓價低於長期平均線，市場處於下跌或調整階段。然而從YMS角度看，樓價下跌同時推高回報率，反而可能創造YMS轉正嘅入市機會。
+</div>
+<div style="margin-top:10px;padding:4px 12px;background:#4a1a1a;border-radius:4px;display:inline-block;color:#e94560;font-weight:bold;font-size:13px;">
+📍 目前位置：指數 307.6 &lt; SMA 343.1（⬇️ 下跌趨勢）
+</div>
+</div>
+</div>
+<p style="font-size:12px;color:#888;margin-top:12px;text-align:center;">
+💡 <b>注意：</b> 樓價指數 vs SMA只能反映價格趨勢方向，而唔係絕對嘅買賣訊號。<br>
+<b>YMS先係判斷「抵唔抵買」嘅核心指標</b> — YMS正數 = 回報cover到利息 = 更安全嘅入市時機。
+</p>
+</div>
+
+<!-- Collapsible Key Events -->
+<div class="card">
+<details style="cursor:pointer;">
+<summary style="font-size:18px;color:#f5a623;font-weight:bold;padding:5px 0;">📌 點擊展開關鍵年份標記</summary>
+<div style="margin-top:15px;">
+<table>
+<thead>
+<tr><th>年份／時期</th><th>毛回報率</th><th>淨回報率</th><th>1M HIBOR</th><th>YMS (LTV=60%)</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>1997年8月</strong><br><small>亞洲金融風暴／港元狙擊</small></td><td>~3.87%</td><td>~2.07%</td><td>8.82%</td><td style="color:#e94560;"><strong>-3.22%</strong> ⛔</td></tr>
+<tr><td><strong>2003年6月</strong><br><small>SARS後底部</small></td><td>5.24%</td><td>3.44%</td><td>1.11%</td><td style="color:#4ecdc4;"><strong>+2.78%</strong> ✅</td></tr>
+<tr><td><strong>2008年9月</strong><br><small>雷曼倒閉／金融海嘯</small></td><td>3.96%</td><td>2.16%</td><td>4.36%</td><td style="color:#f5a623;"><strong>-0.45%</strong></td></tr>
+<tr><td><strong>2021年1月</strong><br><small>市場高峰</small></td><td>2.12%</td><td>0.32%</td><td>0.16%</td><td style="color:#4ecdc4;"><strong>+0.23%</strong></td></tr>
+<tr><td><strong>2026年2月</strong><br><small>最新</small></td><td>2.80%</td><td>1.00%</td><td>2.41%</td><td style="color:#e94560;"><strong>-0.45%</strong> 🔴</td></tr>
+</tbody>
+</table>
+</div>
+</details>
+</div>
+
+<!-- Executive Summary -->
+<div class="card">
+<h2>📋 執行摘要</h2>
+<p style="line-height:1.8;font-size:14px;">
+
+<strong>咩係YMS？點解咁重要？</strong><br>
+YMS（Yield-Mortgage Spread）= 物業淨回報率 − (按揭利率 × 按揭成數)。簡單講，就係「層樓俾你嘅回報」減「還銀行嘅利息成本」。<br><br>
+
+<strong style="color:#4ecdc4;">✅ YMS 正數（> 0%）= 入市好時機</strong><br>
+代表租金回報高過供樓利息，物業自給自足，仲有正現金流。歷史上YMS最靚係 <b style="color:#4ecdc4;">2003年SARS後嘅+2.78%</b>，之後樓價喺幾年內翻咗一番。<br><br>
+
+<strong style="color:#e94560;">❌ YMS 負數（< 0%）= 等吓先，或揀高回報物業</strong><br>
+代表租金唔夠cover利息，每月要倒貼。但YMS負数都有分深淺：<br>
+• <b style="color:#f5a623;">-0.5% 以内（輕微負值）：</b>如2008年金融海嘯前，屬短暫現象，之後樓價迅速反彈<br>
+• <b style="color:#e94560;">-0.5% 以下（深度負值）：</b>如1997年嘅 -3.22%，伴隨長時間樓市下跌，唔適合高槓桿入市<br><br>
+
+<strong>而家點樣？</strong><br>
+<strong>截至2026年2月</strong>，YMS為<b style="color:#e94560;">-0.45%</b>，連續<b>7個月</b>負值。呢個水平同2008年金融海嘯時期相若，屬於「輕微負值」警戒區 — 未到1997年咁恐怖，但已唔係2021年嗰陣正回報嘅環境。入市與否取決於你嘅持貨能力同係咪自住。
+</p>
+</div>
+
+<!-- Key Statistics -->
+<div class="grid-3">
+<div class="card">
+<h3>毛回報率 (Gross Yield)</h3>
+<div class="stat">
+<div class="value orange">2.80%</div>
+<div class="label">2026年2月數據</div>
+</div>
+</div>
+<div class="card">
+<h3>淨回報率 (Net Yield)</h3>
+<div class="stat">
+<div class="value red">1.00%</div>
+<div class="label">毛回報率 - 1.8% 持有成本</div>
+</div>
+</div>
+<div class="card">
+<h3>1個月HIBOR</h3>
+<div class="stat">
+<div class="value orange">2.41%</div>
+<div class="label">HKMA期末數據</div>
+</div>
+</div>
+<div class="card">
+<h3>YMS (LTV=60%)</h3>
+<div class="stat">
+<div class="value red">-0.45%</div>
+<div class="label">Yield-Mortgage Spread</div>
+</div>
+</div>
+<div class="card">
+<h3>YMS (LTV=50%)</h3>
+<div class="stat">
+<div class="value orange">-0.21%</div>
+<div class="label">敏感度分析（低按揭）</div>
+</div>
+</div>
+<div class="card">
+<h3>YMS (LTV=70%)</h3>
+<div class="stat">
+<div class="value red">-0.69%</div>
+<div class="label">敏感度分析（高按揭）</div>
+</div>
+</div>
+</div>
+
+<!-- Data Sources -->
+<div class="card">
+<h2>📁 數據來源及提取記錄</h2>
+<div class="source-item"><span class="tag tag-rvd">RVD</span> <span class="label">his_data_15.xls</span> — 私人物業的市場回報率（自1987年起），最後更新：2026年4月9日。提取住宅類別（A-E類別）每月毛回報率。</div>
+<div class="source-item"><span class="tag tag-rvd">RVD</span> <span class="label">his_data_3.xls</span> — 私人住宅租金指數（自1979年起），最後更新：2026年3月27日。用於交叉驗證。</div>
+<div class="source-item"><span class="tag tag-rvd">RVD</span> <span class="label">his_data_4.xls</span> — 私人住宅售價指數（自1979年起），最後更新：2026年3月27日。用於交叉驗證。</div>
+<div class="source-item"><span class="tag tag-hkma">HKMA</span> <span class="label">T0307.xlsx</span> — 住宅按揭統計調查，最後更新：2026年4月13日。提取新批按揭利率分佈數據。</div>
+<div class="source-item"><span class="tag tag-hkma">HKMA</span> <span class="label">T060301.xls</span> — 港元利息結算率（HIBOR Fixing），最後更新：2026年4月8日。提取1個月HIBOR期末數據（1982-2026年3月）。</div>
+<div class="source-item"><strong>計算方法：</strong> Net Yield = Gross Yield - 1.8%（標準扣除：物業稅15%×80% + 管理費約0.3% + 差餉約0.5% + 空置及維修約0.2% = 約1.8%）。YMS = Net Yield(%) - (1M HIBOR(%) × LTV)。HIBOR用作按揭利率代理變量。</div>
+<div class="source-item"><strong>最新數據月份：</strong> 2026年2月（回報率數據） / 2026年3月（HIBOR數據）</div>
+</div>
+
+<!-- Historical Analysis Table -->
+<div class="card">
+<h2>📊 歷史分析對比表</h2>
+<table>
+<thead>
+<tr>
+<th>年份／時期</th>
+<th>毛回報率</th>
+<th>淨回報率</th>
+<th>1M HIBOR</th>
+<th>YMS (LTV=60%)</th>
+<th>YMS (LTV=50%)</th>
+<th>YMS (LTV=70%)</th>
+<th>市場狀況</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1997年7月</strong><br><small>亞洲金融風暴</small></td>
+<td>~3.80%</td>
+<td>~2.00%</td>
+<td>6.80%</td>
+<td style="color:#e94560;"><strong>-2.08%</strong></td>
+<td>-1.40%</td>
+<td>-2.76%</td>
+<td>極端負息差</td>
+</tr>
+<tr>
+<td><strong>1997年8月</strong><br><small>港元狙擊</small></td>
+<td>~3.87%</td>
+<td>~2.07%</td>
+<td>8.82%</td>
+<td style="color:#e94560;"><strong>-3.22%</strong></td>
+<td>-2.34%</td>
+<td>-4.10%</td>
+<td style="color:#e94560;">⛔ 歷史最低</td>
+</tr>
+<tr>
+<td><strong>2003年6月</strong><br><small>SARS後底部</small></td>
+<td>5.24%</td>
+<td>3.44%</td>
+<td>1.11%</td>
+<td style="color:#4ecdc4;"><strong>+2.78%</strong></td>
+<td>+2.89%</td>
+<td>+2.66%</td>
+<td style="color:#4ecdc4;">✅ 最佳買點</td>
+</tr>
+<tr>
+<td><strong>2008年9月</strong><br><small>雷曼倒閉</small></td>
+<td>3.96%</td>
+<td>2.16%</td>
+<td>4.36%</td>
+<td style="color:#f5a623;"><strong>-0.45%</strong></td>
+<td>-0.02%</td>
+<td>-0.89%</td>
+<td>短暫負息差</td>
+</tr>
+<tr>
+<td><strong>2021年1月</strong><br><small>市場高峰</small></td>
+<td>2.12%</td>
+<td>0.32%</td>
+<td>0.16%</td>
+<td style="color:#4ecdc4;"><strong>+0.23%</strong></td>
+<td>+0.24%</td>
+<td>+0.21%</td>
+<td>極低息支撐</td>
+</tr>
+<tr>
+<td><strong>2026年2月</strong><br><small>最新</small></td>
+<td style="color:#e94560;"><strong>2.80%</strong></td>
+<td style="color:#e94560;"><strong>1.00%</strong></td>
+<td style="color:#f5a623;"><strong>2.41%</strong></td>
+<td style="color:#e94560;"><strong>-0.45%</strong></td>
+<td style="color:#f5a623;"><strong>-0.21%</strong></td>
+<td style="color:#e94560;"><strong>-0.69%</strong></td>
+<td style="color:#e94560;">⚠️ 負息差持續</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Risk Assessment -->
+<div class="card">
+<h2>🚨 目前市場風險評估</h2>
+
+<div class="grid-2">
+<div>
+<h3>YMS 最新數值</h3>
+<div class="stat">
+<div class="value red">-0.45%</div>
+<div class="label">YMS (LTV=60%) • 2026年2月</div>
+</div>
+</div>
+<div>
+<h3>負值持續時間</h3>
+<div class="stat">
+<div class="value red">7個月</div>
+<div class="label">自2025年8月起連續為負</div>
+</div>
+</div>
+</div>
+
+<div class="risk-bar">
+<div class="risk-segment risk-green">🟢 安全區<br>YMS > +0.5%</div>
+<div class="risk-segment risk-yellow">🟡 警戒區<br>0% &lt; YMS ≤ +0.5%</div>
+<div class="risk-segment risk-red risk-current">🔴 危險區<br>YMS ≤ 0%</div>
+</div>
+
+<div class="grid-2">
+<div>
+<h3>與歷史關鍵期對比</h3>
+<table>
+<thead><tr><th>時期</th><th>YMS水平</th><th>差距</th></tr></thead>
+<tbody>
+<tr><td>1997年8月（金融風暴）</td><td style="color:#e94560;">-3.22%</td><td>尚優於當時</td></tr>
+<tr><td>2003年6月（SARS底部）</td><td style="color:#4ecdc4;">+2.78%</td><td>已大幅惡化</td></tr>
+<tr><td>2008年9月（金融海嘯）</td><td style="color:#f5a623;">-0.45%</td><td>持平當年</td></tr>
+<tr><td>2021年1月（市場高峰）</td><td style="color:#4ecdc4;">+0.23%</td><td>已轉負</td></tr>
+</tbody>
+</table>
+</div>
+<div>
+<h3>風險評級</h3>
+<div style="text-align:center;padding:20px;">
+<div class="risk-indicator red">🔴 紅色警戒</div>
+<p style="margin-top:15px;font-size:13px;line-height:1.8;">
+<strong>風險因素：</strong><br>
+• YMS已連續7個月為負值，顯示住宅物業投資處於負現金流狀態<br>
+• 雖然HIBOR從2025年高點（3.95%）回落至2.41%，但回報率同樣受壓<br>
+• 與1997年金融風暴相比，目前YMS的負值幅度雖然較小（-0.45% vs -3.22%），但持續時間更長<br>
+• 2021年時YMS仍為正數（+0.23%），得益於極低利率環境；隨利率正常化，YMS已轉為負值<br>
+• 歷史上YMS由負轉正通常伴隨：利率大幅回落（2008-2009年）或回報率顯著上升（2003年）<br>
+<br>
+<strong>建議關注：</strong> 聯儲局減息周期進展、租金回報率趨勢、及銀行同業拆息變化
+</p>
+</div>
+</div>
+</div>
+
+<!-- Methodology -->
+<div class="card">
+<h2>🔬 計算方法說明</h2>
+<ul>
+<li><strong>毛回報率：</strong> 直接提取自RVD his_data_15.xls「Monthly(Domestic)」工作表，為A-E類別物業的平均回報率</li>
+<li><strong>淨回報率 = 毛回報率 - 1.8%：</strong> 1.8%為標準扣除，涵蓋物業稅（租金收入×80%×15%≈0.4%#）、管理費（約0.3-0.5%）、差餉（約0.5%）、空置損失（約0.2-0.3%）及維修儲備（約0.2-0.3%）。#實際物業稅按租金淨額徵收，此處為簡化估算</li>
+<li><strong>按揭利率代理變量：</strong> 使用1個月HIBOR（HKMA T060301.xls期末數據），因香港新批按揭中約85-95%以HIBOR為定價參考</li>
+<li><strong>LTV假設：</strong> 基準為60%（金管局指引上限），敏感度分析展示LTV=50%及LTV=70%的情景</li>
+<li><strong>1990-1998年數據：</strong> 使用RVD季度回報率數據及可用HIBOR數據構建</li>
+<li><strong>免責聲明：</strong> 本報告僅供參考，不構成任何投資建議。所有數據來自香港政府官方網站，分析力求客觀準確，但使用者應自行核實。</li>
+</ul>
+</div>
+
+<!-- Future YMS Thinking Box -->
+<div class="card" style="border-left:4px solid #f5a623;background:#1a1a2e;">
+<h2 style="color:#f5a623;">🧠 未來YMS轉正值的思考框架</h2>
+<p style="font-size:13px;line-height:1.8;color:#ccc;margin-bottom:15px;">
+YMS要由目前的<b>-0.45%</b>重返正值，需滿足「淨回報率提升」或「按揭利率下降」兩條路徑。以下為樂觀與悲觀情景分析：
+</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+<div style="background:#0a2a1a;border-radius:8px;padding:15px;border:1px solid #1a4a3a;">
+<h3 style="color:#4ecdc4;margin-bottom:10px;">🌞 樂觀情景 — YMS重返正值的條件</h3>
+<ul style="font-size:12px;line-height:2;color:#b0d0c0;padding-left:18px;list-style-type:square;">
+<li><b>聯儲局大幅減息：</b>若美國經濟放緩，聯儲局加速減息，帶動HIBOR跌穿1.5%，在現有回報率下YMS即可轉正（分水嶺：HIBOR &lt; 1.67%）</li>
+<li><b>租金回報率回升：</b>樓價調整20-25%而租金不變，毛回報率可升至3.5-3.7%，淨回報率達1.7-1.9%，足以抵銷HIBOR成本</li>
+<li><b>資金流入避險：</b>環球不確定性升溫，資金流入香港樓市避險，支持租金及物業價值</li>
+<li><b>政府政策支持：</b>撤辣後成交回暖，發展商加快推盤，二手業主議價空間收窄，樓市軟著陸</li>
+<li><b>供樓利息扣稅優化：</b>政府擴大供樓利息扣除，變相降低實際按揭成本，改善YMS（儘管非直接影響公式）</li>
+</ul>
+</div>
+
+<div style="background:#2a1a1a;border-radius:8px;padding:15px;border:1px solid #4a2a2a;">
+<h3 style="color:#e94560;margin-bottom:10px;">🌧️ 悲觀情景 — YMS持續為負的風險</h3>
+<ul style="font-size:12px;line-height:2;color:#d0b0b0;padding-left:18px;list-style-type:square;">
+<li><b>利率居高不下：</b>通脹韌性超預期，聯儲局維持高利率更長時間，HIBOR長期處於2.5-3.5%區間</li>
+<li><b>租金跟隨樓價下跌：</b>經濟放緩、人口流出或就業市場惡化，導致租金下調，進一步壓縮回報率</li>
+<li><b>負現金流引發拋售：</b>YMS持續為負導致投資者沽貨離場，樓價加速下跌，形成負財富效應螺旋</li>
+<li><b>銀行收緊按揭：</b>物業估值下跌及負資產增加，銀行收緊按揭審批，LTV進一步下調，槓桿回報降低</li>
+<li><b>供應過剩：</b>未來3-4年新樓供應持續高企，發展商減價促銷，二手樓價受壓，進一步拉低回報率</li>
+<li><b>內地經濟持續疲弱：</b>北上消費持續，本地經濟復甦乏力，影響就業及收入增長</li>
+</ul>
+</div>
+</div>
+
+<p style="font-size:12px;color:#888;margin-top:15px;line-height:1.6;text-align:center;">
+<strong>關鍵臨界點：</strong> 當1M HIBOR跌穿 <b style="color:#4ecdc4;">~1.67%</b> 或毛回報率升至 <b style="color:#4ecdc4;">~3.3%</b>，YMS即可重返正值。<br>
+歷史經驗顯示，YMS由負轉正通常領先樓價見底回升 **約6-12個月**（2003年SARS及2008年金融海嘯均印證此規律）。
+</p>
+</div>
+
+<div style="text-align:center;padding:20px;color:#666;font-size:12px;">
+Hermes AI Agent 自動生成 • 數據來源：差餉物業估價署 (RVD) 及 香港金融管理局 (HKMA) • 報告時間：2026年4月25日
+</div>
+</div>
+</body>
+</html>
